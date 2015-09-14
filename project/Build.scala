@@ -7,6 +7,9 @@ object FPInScalaBuild extends Build {
     resolvers += "Typesafe Repository" at "http://repo.typesafe.com/typesafe/releases/"
   )
 
+  val scalatest = "org.scalatest" %% "scalatest" % "2.2.4" % "test"
+  val junit = "junit" % "junit" % "4.10" % "test"  
+
   lazy val root =
     Project(id = "fpinscala",
             base = file("."),
@@ -20,7 +23,12 @@ object FPInScalaBuild extends Build {
   lazy val exercises =
     Project(id = "exercises",
             base = file("exercises"),
-            settings = opts)
+            settings = opts ++ Seq(
+              libraryDependencies ++= Seq(
+                scalatest,
+                junit
+              )
+            ))
   lazy val answers =
     Project(id = "answers",
             base = file("answers"),
