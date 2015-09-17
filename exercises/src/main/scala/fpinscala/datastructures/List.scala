@@ -49,14 +49,35 @@ object List { // `List` companion object. Contains functions for creating and wo
   def product2(ns: List[Double]) =
     foldRight(ns, 1.0)(_ * _) // `_ * _` is more concise notation for `(x,y) => x * y`; see sidebar
 
+  // Exercise 3.2:
+  def tail[A](l: List[A]): List[A] = l match {
+    case Nil => throw new UnsupportedOperationException("tail of empty list")
+    case Cons(_, t) => t
+  }
 
-  def tail[A](l: List[A]): List[A] = sys.error("todo")
+  // Exercise 3.3:
+  def setHead[A](l: List[A], h: A): List[A] = l match {
+    case Nil => throw new UnsupportedOperationException("setHead of empty list")
+    case Cons(_, t) => Cons(h, t)
+  }
 
-  def setHead[A](l: List[A], h: A): List[A] = sys.error("todo")
+  // Exercise 3.4:
+  @annotation.tailrec
+  def drop[A](l: List[A], n: Int): List[A] = n match {
+    case neg if neg < 0 => throw new IllegalArgumentException("drop a negative number of elements")
+    case 0 => l
+    case pos => l match {
+      case Nil => throw new UnsupportedOperationException("drop a positive number of elements from an empty list") 
+      case Cons(_, t) => drop(t, n - 1)
+    }
+  }
 
-  def drop[A](l: List[A], n: Int): List[A] = sys.error("todo")
-
-  def dropWhile[A](l: List[A], f: A => Boolean): List[A] = sys.error("todo")
+  // Exercise 3.5:
+  @annotation.tailrec
+  def dropWhile[A](l: List[A], f: A => Boolean): List[A] =  l match {
+    case Nil => Nil
+    case Cons(a, t) => if (f(a)) dropWhile(t, f) else l 
+  }
 
   def init[A](l: List[A]): List[A] = sys.error("todo")
 

@@ -11,7 +11,7 @@ import PolymorphicFunctions._;
  * http://www.scalatest.org/user_guide/matchers_quick_reference
  */
 @RunWith(classOf[JUnitRunner])
-class GettingStarteSpec extends FlatSpec with Matchers {
+class GettingStartedSpec extends FlatSpec with Matchers {
   
   "fibs" should "be correct for the first two values" in {
     fib(0) shouldBe 0
