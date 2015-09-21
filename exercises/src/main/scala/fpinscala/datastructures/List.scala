@@ -79,11 +79,55 @@ object List { // `List` companion object. Contains functions for creating and wo
     case Cons(a, t) => if (f(a)) dropWhile(t, f) else l 
   }
 
-  def init[A](l: List[A]): List[A] = sys.error("todo")
+  // Exercise 3.6:
+  def init[A](l: List[A]): List[A] = {
+    @annotation.tailrec
+    def go[A](l: List[A], acc: List[A]): List[A] = l match {
+      case Nil => throw new UnsupportedOperationException("init of Nil")
+      case Cons(a, t:Cons[A]) => go(t, Cons(a, acc))
+      case Cons(a, t) => acc
+    }
 
-  def length[A](l: List[A]): Int = sys.error("todo")
+    def reverse[A](l: List[A]): List[A] = {
+      @annotation.tailrec
+      def go[A](l: List[A], acc: List[A]): List[A] = l match {
+        case Nil => acc
+        case Cons(a, t) => go(t, Cons(a, acc))
+      }
+      go(l, Nil)
+    }
 
-  def foldLeft[A,B](l: List[A], z: B)(f: (B, A) => B): B = sys.error("todo")
+    reverse(go(l, Nil))
+  }
+
+  // Exercise 3.7: how to short-circuit foldRight
+  // (1) throw exception
+  // (2) redefine foldRight return type to indicate whether to continue
+
+  // Exercise 3.9:
+  def length[A](l: List[A]): Int =
+    foldRight(l, 0)((a, z) => z + 1)
+
+  // Exercise 3.10:
+  @annotation.tailrec
+  def foldLeft[A,B](l: List[A], z: B)(f: (B, A) => B): B = l match {
+    case Nil => z
+    case Cons(a, t) => foldLeft(t, f(z, a))(f)
+  }
+
+  // Exercise 3.11:
+  def sum310(ns: List[Int]) =
+    foldLeft(ns, 0.0)(_ + _)
+
+  def product310(ns: List[Double]) =
+    foldLeft(ns, 1.0)(_ * _)
+
+  def length310[A](l: List[A]): Int =
+    foldLeft(l, 0)((z, a) => z + 1)
+
+  // Exercise 3.12:
+  def reverse[A](l: List[A]): List[A] =
+    foldLeft(l, Nil:List[A])((z, a) => Cons(a, z))
 
   def map[A,B](l: List[A])(f: A => B): List[B] = sys.error("todo")
 }
