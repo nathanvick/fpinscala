@@ -16,6 +16,9 @@ class ListSpec extends FlatSpec with Matchers {
     val l1 = Cons(1, Nil)
     val l2 = Cons(2, l1)
     val l3 = Cons(3, l2)
+    
+    val abc = Cons("A", Cons("B", Cons("C", Nil)))    
+    val cba = Cons("C", Cons("B", Cons("A", Nil)))
   }  
   
   "tail" should "be remaining values" in {
@@ -153,12 +156,10 @@ class ListSpec extends FlatSpec with Matchers {
     }
   }
 
-  "foldLeft" should "work" in {
+  "foldLeft" should "fold from left to right" in {
     new TestSets {
       foldLeft(Nil: List[Int], 0)(_ + _) shouldBe 0
-      foldLeft(l1, 0)(_ + _) shouldBe 1
-      foldLeft(l2, 0)(_ + _) shouldBe 3
-      foldLeft(l3, 0)(_ + _) shouldBe 6
+      foldLeft(abc, Nil: List[String])((b, a) => Cons(a, b)) shouldBe cba
     }
   }
 
@@ -198,6 +199,84 @@ class ListSpec extends FlatSpec with Matchers {
       reverse(l2) shouldBe Cons(1, Cons(2, Nil))
       reverse(l3) shouldBe Cons(1, Cons(2, Cons(3, Nil)))
     }
+  } 
+
+  "foldLeft313" should "fold from left to right" in {
+    new TestSets {
+      foldLeft313(Nil: List[Int], 0)(_ + _) shouldBe 0
+      foldLeft313(abc, Nil: List[String])((b, a) => Cons(a, b)) shouldBe cba
+    }
   }
 
+  "foldRight313" should "fold from right to left" in {
+    new TestSets {
+      foldRight313(Nil: List[Int], 0)(_ + _) shouldBe 0
+      foldRight(abc, Nil: List[String])((a, b) => Cons(a, b)) shouldBe abc
+    }
+  }
+  
+  "append314" should "concatenate two lists" in {
+    new TestSets {
+      append314(Nil, abc) shouldBe abc
+      append314(abc, Nil) shouldBe abc
+      append314(Cons("A", Nil), Cons("B", Cons("C", Nil))) shouldBe abc
+    }
+  }
+  
+  "flatten" should "flatten a list of lists" in {
+    new TestSets {
+      flatten(Nil) shouldBe Nil
+      
+      val innerList1 = Cons("1.1", Cons("1.2", Cons("1.3", Nil)))
+      val innerList2 = Cons("2.1", Cons("2.2", Cons("2.3", Nil)))
+      
+      val listOfLists: List[List[String]] = 
+          Cons(innerList1, Cons(innerList2, Nil))
+          
+      val flattened: List[String] = 
+          Cons("1.1", Cons("1.2", Cons("1.3", Cons("2.1", Cons("2.2", Cons("2.3", Nil)))))) 
+          
+      flatten(listOfLists) shouldBe flattened
+    }
+  }    
+
+  "addOne" should "increment each element" in {
+    new TestSets {
+      addOne(Nil) shouldBe Nil
+      addOne(l3) shouldBe Cons(4, Cons(3, Cons(2, Nil)))      
+    }
+  }
+  
+  "stringify" should "convert each element to a String" in {
+    new TestSets {
+      stringify(Nil) shouldBe Nil
+      stringify(Cons(3.0, Cons(2.0, Cons(1.0, Nil)))) shouldBe Cons("3.0", Cons("2.0", Cons("1.0", Nil)))      
+    }
+  }
+  
+  "map" should "return a transformed list" in {
+    new TestSets {
+      map(Nil)(x => x) shouldBe Nil
+      map(l3)(_ + 1) shouldBe Cons(4, Cons(3, Cons(2, Nil)))      
+      map(Cons(3.0, Cons(2.0, Cons(1.0, Nil))))(_.toString) shouldBe Cons("3.0", Cons("2.0", Cons("1.0", Nil)))      
+    }
+  }
+  
+  "filter" should "remove odd numbers, given a function that tests if a number if even" in {
+    new TestSets {
+      val isEven = (x: Int) => x % 2 == 0
+      
+      filter(Nil)(isEven) shouldBe Nil
+      filter(l3)(isEven) shouldBe Cons(2, Nil)
+    }
+  }
+  
+  "flatMap" should "return a transformed list" in {
+    new TestSets {
+      flatMap(Nil)(x => Cons(x, Nil)) shouldBe Nil
+      flatMap(l3)(x => Cons(x + 1, Nil)) shouldBe Cons(4, Cons(3, Cons(2, Nil)))      
+      flatMap(Cons(3.0, Cons(2.0, Cons(1.0, Nil))))(x => Cons(x.toString, Nil)) shouldBe Cons("3.0", Cons("2.0", Cons("1.0", Nil)))      
+    }
+  }
+  
 }

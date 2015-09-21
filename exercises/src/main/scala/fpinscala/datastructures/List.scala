@@ -106,11 +106,11 @@ object List { // `List` companion object. Contains functions for creating and wo
 
   // Exercise 3.9:
   def length[A](l: List[A]): Int =
-    foldRight(l, 0)((a, z) => z + 1)
+    foldRight(l, 0){(a, z) => z + 1}
 
   // Exercise 3.10:
   @annotation.tailrec
-  def foldLeft[A,B](l: List[A], z: B)(f: (B, A) => B): B = l match {
+  def foldLeft[A,B](as: List[A], z: B)(f: (B, A) => B): B = as match {
     case Nil => z
     case Cons(a, t) => foldLeft(t, f(z, a))(f)
   }
@@ -123,11 +123,66 @@ object List { // `List` companion object. Contains functions for creating and wo
     foldLeft(ns, 1.0)(_ * _)
 
   def length310[A](l: List[A]): Int =
-    foldLeft(l, 0)((z, a) => z + 1)
+    foldLeft(l, 0){(z, a) => z + 1}
 
   // Exercise 3.12:
   def reverse[A](l: List[A]): List[A] =
-    foldLeft(l, Nil:List[A])((z, a) => Cons(a, z))
+    foldLeft(l, Nil:List[A]){(z, a) => Cons(a, z)}
 
-  def map[A,B](l: List[A])(f: A => B): List[B] = sys.error("todo")
+  // Exercise 3.13:
+  def foldLeft313[A,B](as: List[A], z: B)(f: (B, A) => B): B =
+    foldRight(reverse(as), z){(a, b) => f(b, a)}
+
+  def foldRight313[A,B](as: List[A], z: B)(f: (A, B) => B): B =
+    foldLeft(reverse(as), z){(b, a) => f(a, b)}
+  
+  // Exercise 3.14:
+  def append314[A](a1: List[A], a2: List[A]): List[A] =
+    foldRight(a1, a2){(a, z) => Cons(a, z)}
+  
+  // Exercise 3.15:
+  def flatten[A](l: List[List[A]]): List[A] =
+    foldRight(l, Nil: List[A]) {
+      (as, flattened) => foldRight(as, flattened){(a, z) => Cons(a, z)}
+    }
+
+  // Exercise 3.16 (intentionally implemented without map/fold):
+  def addOne(as: List[Int]): List[Int] = {
+    @annotation.tailrec
+    def go(as: List[Int], acc: List[Int]): List[Int] = as match {
+      case Nil => acc
+      case Cons(a, t) => go(t, Cons(a + 1, acc))
+    }
+    
+    reverse(go(as, Nil: List[Int]))
+  }
+  
+  // Exercise 3.17 (intentionally implemented without map/fold):
+  def stringify(as: List[Double]): List[String] = {
+    @annotation.tailrec
+    def go(as: List[Double], acc: List[String]): List[String] = as match {
+      case Nil => acc
+      case Cons(a, t) => go(t, Cons(a.toString, acc))
+    }
+    
+    reverse(go(as, Nil: List[String]))
+  }  
+    
+  // Exercise 3.18:
+  def map[A,B](l: List[A])(f: A => B): List[B] =
+    foldRight(l, Nil: List[B]){(a, z) => Cons(f(a), z)}
+  
+  // Exercise 3.19:
+  def filter[A](as: List[A])(f: A => Boolean): List[A] =
+    foldRight(as, Nil: List[A]){(a, z) => if (f(a)) Cons(a, z) else z}
+
+  // Exercise 3.20:
+  def flatMapConcise[A,B](as: List[A])(f: A => List[B]): List[B] =
+   flatten(map(as)(f))
+  
+  def flatMap[A,B](as: List[A])(f: A => List[B]): List[B] =
+   foldRight(as, Nil: List[B]) {
+     (a, z) => foldRight(f(a), z){(b, zz) => Cons(b, zz)}
+   }
+
 }
