@@ -13,3 +13,4 @@ project.vim
 */bin
 */.cache-main
 */.cache-tests
+*/.tmpbin

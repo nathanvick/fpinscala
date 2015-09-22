@@ -278,5 +278,71 @@ class ListSpec extends FlatSpec with Matchers {
       flatMap(Cons(3.0, Cons(2.0, Cons(1.0, Nil))))(x => Cons(x.toString, Nil)) shouldBe Cons("3.0", Cons("2.0", Cons("1.0", Nil)))      
     }
   }
+
+  "filter321" should "remove odd numbers, given a function that tests if a number if even" in {
+    new TestSets {
+      val isEven = (x: Int) => x % 2 == 0
+      
+      filter321(Nil)(isEven) shouldBe Nil
+      filter321(l3)(isEven) shouldBe Cons(2, Nil)
+    }
+  }
+
+  "add" should "return the sum of respective elements in two lists" in {
+    new TestSets {
+      add(Nil, Nil) shouldBe Nil
+      
+      // One Nil
+      add(Nil, l1) shouldBe Nil
+      add(l1, Nil) shouldBe Nil
+      
+      // One less
+      add(l1, l2) shouldBe Cons(3, Nil)
+      add(l2, l1) shouldBe Cons(3, Nil)
+      
+      add(l3, l3) shouldBe Cons(6, Cons(4, Cons(2, Nil)))
+    }
+  }
+  
+  "zipWith" should "execute the specified function over respective elements in two lists, and return the result" in {
+    val f = (a: Int, b: Int) => a + b
+    
+    new TestSets {
+      zipWith(Nil, Nil)(f) shouldBe Nil
+      
+      // One Nil
+      zipWith(Nil, l1)(f) shouldBe Nil
+      zipWith(l1, Nil)(f) shouldBe Nil
+      
+      // One less
+      zipWith(l1, l2)(f) shouldBe Cons(3, Nil)
+      zipWith(l2, l1)(f) shouldBe Cons(3, Nil)
+      
+      zipWith(l3, l3)(f) shouldBe Cons(6, Cons(4, Cons(2, Nil)))
+    }
+  }  
+  
+  "hasSubsequence" should "evaulate correctly" in {
+    val f = (a: Int, b: Int) => a + b
+    
+    new TestSets {
+      hasSubsequence(Nil, Nil) shouldBe false
+      hasSubsequence(Nil, l1) shouldBe false
+      hasSubsequence(l1, Nil) shouldBe false
+
+      hasSubsequence(l3, l3) shouldBe true
+      hasSubsequence(l3, l2) shouldBe true
+      hasSubsequence(l3, l1) shouldBe true
+      
+      hasSubsequence(l3, Cons(3, Nil)) shouldBe true
+      hasSubsequence(l3, Cons(3, Cons(2, Nil))) shouldBe true
+
+      hasSubsequence(l3, Cons(2, Nil)) shouldBe true
+      
+      hasSubsequence(l2, l3) shouldBe false
+      hasSubsequence(l1, l2) shouldBe false
+      hasSubsequence(l1, l3) shouldBe false      
+    }
+  }   
   
 }

@@ -177,12 +177,64 @@ object List { // `List` companion object. Contains functions for creating and wo
     foldRight(as, Nil: List[A]){(a, z) => if (f(a)) Cons(a, z) else z}
 
   // Exercise 3.20:
-  def flatMapConcise[A,B](as: List[A])(f: A => List[B]): List[B] =
-   flatten(map(as)(f))
-  
   def flatMap[A,B](as: List[A])(f: A => List[B]): List[B] =
-   foldRight(as, Nil: List[B]) {
-     (a, z) => foldRight(f(a), z){(b, zz) => Cons(b, zz)}
-   }
+    flatten(map(as)(f))
+  
+  def flatMap2[A,B](as: List[A])(f: A => List[B]): List[B] =
+    foldRight(as, Nil: List[B]) {
+      (a, z) => foldRight(f(a), z){(b, zz) => Cons(b, zz)}
+    }
 
+  // Exercise 3.21:
+  def filter321[A](as: List[A])(f: A => Boolean): List[A] =
+    //foldRight(as, Nil: List[A]){(a, z) => if (f(a)) Cons(a, z) else z}
+    flatMap(as){a => if (f(a)) Cons(a, Nil) else Nil}
+
+  // Exercise 3.22:
+  def add(as: List[Int], bs: List[Int]): List[Int] = {
+    def go(as: List[Int], bs: List[Int], acc: List[Int]): List[Int] = (as, bs) match {
+      case (Nil, _) | (_, Nil) => acc
+      case (Cons(a, ta), Cons(b, tb)) => go(ta, tb, Cons(a + b, acc))
+    }
+    
+    reverse(go(as, bs, Nil: List[Int]))
+  }
+
+  // Exercise 3.23:
+  def zipWith[A, B, C](as: List[A], bs: List[B])(f: (A, B) => C): List[C] = {
+    def go(as: List[A], bs: List[B], acc: List[C]): List[C] = (as, bs) match {
+      case (Nil, _) | (_, Nil) => acc
+      case (Cons(a, ta), Cons(b, tb)) => go(ta, tb, Cons(f(a, b), acc))
+    }
+    
+    reverse(go(as, bs, Nil: List[C]))
+  }
+  
+  // Exercise 3.24:
+  def hasSubsequence[A](sup: List[A], sub: List[A]): Boolean = {
+    if (sup == Nil || sub == Nil) {      
+      false      
+    } else {
+      
+      Nil == foldLeft(sup, Cons(sub, Nil): List[List[A]]) {(subs, a) =>          
+        if (subs == Nil) {
+          // We already have a match:
+          subs
+        } else {
+          foldLeft(subs, Cons(sub, Nil): List[List[A]]) {(newSubs, oldSub) => 
+            oldSub match {
+              // We already have a match:
+              case Nil => Nil: List[List[A]]
+              // NOT LAST ELEMENT: If head matches, keep looking for the tail; otherwise, throw it out
+              case Cons(b, t: Cons[A]) => if (b == a) Cons(t, newSubs) else newSubs
+              // LAST ELEMENT: If head matches, we found a complete match; otherwise, throw it out
+              case Cons(b, Nil) => if (b == a) Nil: List[List[A]] else newSubs
+            }
+          }
+        }
+      }
+      
+    }
+  }
+  
 }
