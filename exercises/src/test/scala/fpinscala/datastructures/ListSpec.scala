@@ -65,43 +65,21 @@ class ListSpec extends FlatSpec with Matchers {
     }
   }
 
-  it should "fail, given too many values" in {
+  it should "return Nil, if asked to drop more than the length" in {
     new TestSets {    
-      intercept[UnsupportedOperationException] {
-        drop(Nil, 1)
-      }
-  
-      intercept[UnsupportedOperationException] {
-        drop(l1, 2)
-      }
-  
-      intercept[UnsupportedOperationException] {
-        drop(l2, 3)
-      }
-  
-      intercept[UnsupportedOperationException] {
-        drop(l3, 4)
-      }
+      drop(Nil, 1) shouldBe Nil
+      drop(l1, 2) shouldBe Nil
+      drop(l2, 3) shouldBe Nil
+      drop(l3, 4) shouldBe Nil
     }
   }
   
-  it should "not be negative" in {
+  it should "return the list unmodified if negative" in {
     new TestSets {    
-      intercept[IllegalArgumentException] {
-        drop(Nil, -1)
-      }
-  
-      intercept[IllegalArgumentException] {
-        drop(l1, -1)
-      }
-  
-      intercept[IllegalArgumentException] {
-        drop(l2, -2)
-      }
-  
-      intercept[IllegalArgumentException] {
-        drop(l3, -3)
-      }
+      drop(Nil, -1) shouldBe Nil
+      drop(l1, -1) shouldBe l1
+      drop(l2, -2) shouldBe l2
+      drop(l3, -3) shouldBe l3
     }
   }
   
@@ -322,13 +300,36 @@ class ListSpec extends FlatSpec with Matchers {
     }
   }  
   
+  "hasPrefix" should "evaulate correctly" in {
+    val f = (a: Int, b: Int) => a + b
+    
+    new TestSets {
+      hasPrefix(Nil, Nil) shouldBe true
+      hasPrefix(Nil, l1) shouldBe false
+      hasPrefix(l1, Nil) shouldBe true
+
+      hasPrefix(l3, l3) shouldBe true
+      hasPrefix(l3, l2) shouldBe false
+      hasPrefix(l3, l1) shouldBe false
+      
+      hasPrefix(l3, Cons(3, Nil)) shouldBe true
+      hasPrefix(l3, Cons(3, Cons(2, Nil))) shouldBe true
+
+      hasPrefix(l3, Cons(2, Nil)) shouldBe false
+      
+      hasPrefix(l2, l3) shouldBe false
+      hasPrefix(l1, l2) shouldBe false
+      hasPrefix(l1, l3) shouldBe false      
+    }
+  } 
+
   "hasSubsequence" should "evaulate correctly" in {
     val f = (a: Int, b: Int) => a + b
     
     new TestSets {
-      hasSubsequence(Nil, Nil) shouldBe false
+      hasSubsequence(Nil, Nil) shouldBe true
       hasSubsequence(Nil, l1) shouldBe false
-      hasSubsequence(l1, Nil) shouldBe false
+      hasSubsequence(l1, Nil) shouldBe true
 
       hasSubsequence(l3, l3) shouldBe true
       hasSubsequence(l3, l2) shouldBe true

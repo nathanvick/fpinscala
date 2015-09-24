@@ -63,11 +63,11 @@ object List { // `List` companion object. Contains functions for creating and wo
 
   // Exercise 3.4:
   @annotation.tailrec
-  def drop[A](l: List[A], n: Int): List[A] = n match {
-    case neg if neg < 0 => throw new IllegalArgumentException("drop a negative number of elements")
-    case 0 => l
-    case pos => l match {
-      case Nil => throw new UnsupportedOperationException("drop a positive number of elements from an empty list") 
+  def drop[A](l: List[A], n: Int): List[A] = {
+    if (n <= 0)
+      l
+    else l match {
+      case Nil => Nil 
       case Cons(_, t) => drop(t, n - 1)
     }
   }
@@ -75,8 +75,8 @@ object List { // `List` companion object. Contains functions for creating and wo
   // Exercise 3.5:
   @annotation.tailrec
   def dropWhile[A](l: List[A], f: A => Boolean): List[A] =  l match {
-    case Nil => Nil
-    case Cons(a, t) => if (f(a)) dropWhile(t, f) else l 
+    case Cons(a, t) if (f(a)) => dropWhile(t, f)
+    case _ => l
   }
 
   // Exercise 3.6:
@@ -211,30 +211,22 @@ object List { // `List` companion object. Contains functions for creating and wo
   }
   
   // Exercise 3.24:
-  def hasSubsequence[A](sup: List[A], sub: List[A]): Boolean = {
-    if (sup == Nil || sub == Nil) {      
-      false      
-    } else {
-      
-      Nil == foldLeft(sup, Cons(sub, Nil): List[List[A]]) {(subs, a) =>          
-        if (subs == Nil) {
-          // We already have a match:
-          subs
-        } else {
-          foldLeft(subs, Cons(sub, Nil): List[List[A]]) {(newSubs, oldSub) => 
-            oldSub match {
-              // We already have a match:
-              case Nil => Nil: List[List[A]]
-              // NOT LAST ELEMENT: If head matches, keep looking for the tail; otherwise, throw it out
-              case Cons(b, t: Cons[A]) => if (b == a) Cons(t, newSubs) else newSubs
-              // LAST ELEMENT: If head matches, we found a complete match; otherwise, throw it out
-              case Cons(b, Nil) => if (b == a) Nil: List[List[A]] else newSubs
-            }
-          }
-        }
-      }
-      
+  @annotation.tailrec
+  def hasPrefix[A](sup: List[A], sub: List[A]): Boolean = (sup, sub) match {
+    case (_, Nil) => true
+    case (Cons(supH, supT), Cons(subH, subT)) if supH == subH => hasPrefix(supT, subT)
+    case _ => false
+  }
+  
+  @annotation.tailrec
+  def existsSuffix[A](l: List[A])(f: List[A] => Boolean): Boolean = {
+    if (f(l)) true else l match {
+      case Nil => false
+      case Cons(_, t) => existsSuffix(t)(f)
     }
   }
+
+  def hasSubsequence[A](sup: List[A], sub: List[A]): Boolean =
+    existsSuffix(sup)(hasPrefix(_, sub))
   
 }
