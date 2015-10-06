@@ -13,9 +13,6 @@ import Option._;
 @RunWith(classOf[JUnitRunner])
 class OptionSpec extends FlatSpec with Matchers {
   
-  trait TestSets {
-  }  
-  
   // Exercise 4.1:
   "map" should "should apply a function on Some" in {
     Some(1) map(_ + 1) shouldBe Some(2)
@@ -110,5 +107,18 @@ class OptionSpec extends FlatSpec with Matchers {
 
   it should "should return Nil if the list of Options is empty" in {
     sequence(Nil) shouldBe Some(Nil)
+  }
+
+  // Exercise 4.5:
+  "traverse" should "should return a list of values, in an Option" in {
+    traverse(1 :: 2 :: Nil)(x => Some(x)) shouldBe Some(1 :: 2 :: Nil)
+  }
+  
+  it should "should return None if the first Option is empty" in {
+    traverse(1 :: 2 :: Nil)(x => if (x % 2 == 0) Some(x) else None) shouldBe None
+  }
+  
+  it should "should return None if all Options are empty" in {
+    traverse(1 :: 2 :: Nil)(x => None) shouldBe None
   }  
 }

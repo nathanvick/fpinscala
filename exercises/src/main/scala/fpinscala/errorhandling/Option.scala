@@ -59,16 +59,21 @@ object Option {
 
   // Exercise 4.3:
   def map2[A,B,C](a: Option[A], b: Option[B])(f: (A, B) => C): Option[C] = {
-    //for (x <- a; y <- b) yield f(x, y)
-    a.flatMap{x => b.map(y => f(x, y))}    
+    //a.flatMap{x => b.map(y => f(x, y))}    
+    for (x <- a; y <- b) yield f(x, y)
   }
 
   // Exercise 4.4:
   def sequence[A](l: List[Option[A]]): Option[List[A]] = {
     // Fold does not short circuit!
-    //l.foldRight(Some(Nil): Option[List[A]]){(optionA, optionList) => for (list <- optionList; a <- optionA) yield a :: list}
-    l.foldRight(Some(Nil): Option[List[A]]){(optionA, optionList) => optionList.flatMap(list => optionA.map(a => a :: list))}
+    //l.foldRight(Some(Nil): Option[List[A]]){(optionA, optionalList) => optionalList.flatMap(list => optionA.map(a => a :: list))}
+    l.foldRight(Some(Nil): Option[List[A]]){(optionA, optionalList) => for (list <- optionalList; a <- optionA) yield a :: list}
   }
 
-  def traverse[A, B](a: List[A])(f: A => Option[B]): Option[List[B]] = sys.error("todo")
+  // Exercise 4.5:
+  def traverse[A, B](a: List[A])(f: A => Option[B]): Option[List[B]] = {
+    // Fold does not short circuit!
+    //a.foldRight(Some(Nil): Option[List[B]]){(a, optionalList) => optionalList.flatMap(list => f(a).map(b => b :: list))}
+    a.foldRight(Some(Nil): Option[List[B]]){(a, optionalList) => for (list <- optionalList; b <- f(a)) yield b :: list}
+  }
 }
