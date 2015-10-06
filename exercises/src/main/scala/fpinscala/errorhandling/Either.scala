@@ -30,15 +30,15 @@ case class Right[+A](get: A) extends Either[Nothing,A]
 object Either {
   // Exercise 4.7:
   def traverse[E,A,B](es: List[A])(f: A => Either[E, B]): Either[E, List[B]] = {
-    // Fold does not short-circuit!
-    // Note: the "first error encountered" will be the last one in the list because of foldRight
-    es.foldRight(Right(Nil): Either[E, List[B]])((a, acc) => for (bs <- acc; b <- f(a)) yield b :: bs)
+    // foldRight encounters errors at the end of the list before encountering errors at the beginning of the list:
+    //es.foldRight(Right(Nil): Either[E, List[B]])((a, acc) => for (bs <- acc; b <- f(a)) yield b :: bs)
+    es.foldLeft(Right(Nil): Either[E, List[B]])((acc, a) => for (bs <- acc; b <- f(a)) yield b :: bs) map (acc => acc.reverse)
   }
 
   def sequence[E,A](es: List[Either[E,A]]): Either[E,List[A]] = {
-    // Fold does not short-circuit!
-    // Note: the "first error encountered" will be the last one in the list because of foldRight
-    es.foldRight(Right(Nil): Either[E, List[A]])((e, acc) => for (as <- acc; a <- e) yield a :: as)
+    // foldRight encounters errors at the end of the list before encountering errors at the beginning of the list:
+    //es.foldRight(Right(Nil): Either[E, List[A]])((e, acc) => for (as <- acc; a <- e) yield a :: as)
+    es.foldLeft(Right(Nil): Either[E, List[A]])((acc, e) => for (as <- acc; a <- e) yield a :: as) map (acc => acc.reverse)
   }
 
   def mean(xs: IndexedSeq[Double]): Either[String, Double] = 

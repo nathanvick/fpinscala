@@ -74,7 +74,7 @@ class EitherSpec extends FlatSpec with Matchers {
 
   it should "should return the first error if all values are errors" in {
     //sequence(Left("error1") :: Left("error2") :: Nil) shouldBe Left("error1")
-    sequence(Left("error1") :: Left("error2") :: Nil) shouldBe Left("error2")
+    sequence(Left("error1") :: Left("error2") :: Nil) shouldBe Left("error1")
   }  
 
   it should "should return Nil if the list of either values is empty" in {
@@ -86,11 +86,11 @@ class EitherSpec extends FlatSpec with Matchers {
   }
   
   it should "should return the left value if the first value is a left value" in {
-    traverse(1 :: 2 :: Nil)(x => if (x % 2 == 0) Right(x) else Left("error")) shouldBe Left("error")
+    traverse(1 :: 2 :: Nil)(x => if (x % 2 == 0) Right(x) else Left("error" + x)) shouldBe Left("error1")
   }
   
   it should "should return the a left value if all values are left values" in {
-    traverse(1 :: 2 :: Nil)(x => Left("error")) shouldBe Left("error")
+    traverse(1 :: 2 :: Nil)(x => Left("error" + x)) shouldBe Left("error1")
   }  
 
 }
