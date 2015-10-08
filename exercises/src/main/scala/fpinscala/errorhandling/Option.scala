@@ -16,13 +16,14 @@ sealed trait Option[+A] {
   }
   
   def flatMap[B](f: A => Option[B]): Option[B] =
-    map (x => f(x)) getOrElse(None)
+    map (f) getOrElse(None)
     
   def orElse[B>:A](ob: => Option[B]): Option[B] =
-    map (x => Some(x)) getOrElse(ob)
+    map (Some(_)) getOrElse(ob)
 
   def filter(f: A => Boolean): Option[A] =
-    map (x => if (f(x)) Some(x) else None) getOrElse(None)
+    flatMap(x => if (f(x)) Some(x) else None)
+
 }
 case class Some[+A](get: A) extends Option[A]
 case object None extends Option[Nothing]
@@ -67,13 +68,15 @@ object Option {
   def sequence[A](l: List[Option[A]]): Option[List[A]] = {
     // Fold does not short circuit!
     //l.foldRight(Some(Nil): Option[List[A]]){(optionA, optionalList) => optionalList.flatMap(list => optionA.map(a => a :: list))}
-    l.foldRight(Some(Nil): Option[List[A]]){(optionA, optionalList) => for (list <- optionalList; a <- optionA) yield a :: list}
+    //l.foldRight(Some(Nil): Option[List[A]]){(optionA, optionalList) => for (list <- optionalList; a <- optionA) yield a :: list}
+    traverse(l)(x => x)
   }
 
   // Exercise 4.5:
   def traverse[A, B](a: List[A])(f: A => Option[B]): Option[List[B]] = {
     // Fold does not short circuit!
     //a.foldRight(Some(Nil): Option[List[B]]){(a, optionalList) => optionalList.flatMap(list => f(a).map(b => b :: list))}
+    //a.foldRight(Some(Nil): Option[List[B]]){(a, optionalList) => map2(optionalList, f(a)){case (list, b) => b :: list}}
     a.foldRight(Some(Nil): Option[List[B]]){(a, optionalList) => for (list <- optionalList; b <- f(a)) yield b :: list}
   }
 }

@@ -38,7 +38,8 @@ object Either {
   def sequence[E,A](es: List[Either[E,A]]): Either[E,List[A]] = {
     // foldRight encounters errors at the end of the list before encountering errors at the beginning of the list:
     //es.foldRight(Right(Nil): Either[E, List[A]])((e, acc) => for (as <- acc; a <- e) yield a :: as)
-    es.foldLeft(Right(Nil): Either[E, List[A]])((acc, e) => for (as <- acc; a <- e) yield a :: as) map (acc => acc.reverse)
+    //es.foldLeft(Right(Nil): Either[E, List[A]])((acc, e) => for (as <- acc; a <- e) yield a :: as) map (acc => acc.reverse)
+    traverse(es)(x => x)
   }
 
   def mean(xs: IndexedSeq[Double]): Either[String, Double] = 
