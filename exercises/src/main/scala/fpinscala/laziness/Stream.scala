@@ -17,19 +17,48 @@ trait Stream[+A] {
     case Empty => None
     case Cons(h, t) => if (f(h())) Some(h()) else t().find(f)
   }
-  def take(n: Int): Stream[A] = sys.error("todo")
+  
+  // Exercise 5.1:
+  def toList(): List[A] = foldRight(List[A]())(_ :: _)
+  
+  // Exercise 5.2:
+  def take(n: Int): Stream[A] = this match {
+    case Cons(h, t) if n > 0 => Cons(h, () => t().take(n - 1))
+    case _ => Empty
+  }
 
-  def drop(n: Int): Stream[A] = sys.error("todo")
+  def drop(n: Int): Stream[A] = this match {
+    case Empty => Empty
+    case s @ Cons(h, t) => if (n > 0) t().drop(n - 1) else s
+  }
+  
+  // Exercise 5.3 (use foldRight for exercise 5.5):
+  def takeWhile(p: A => Boolean): Stream[A] = 
+    foldRight(Empty:Stream[A])((a, acc) => if (p(a)) Stream.cons(a, acc) else Empty)
 
-  def takeWhile(p: A => Boolean): Stream[A] = sys.error("todo")
+  // Exercise 5.4:
+  def forAll(p: A => Boolean): Boolean = !exists(!p(_))
+    //foldRight(true)((a, b) => p(a) && b)
 
-  def forAll(p: A => Boolean): Boolean = sys.error("todo")
+  // Exercise 5.6:
+  def headOption: Option[A] =
+    foldRight(None: Option[A])((a, _) => Some(a))
 
-  def headOption: Option[A] = sys.error("todo")
-
-  // 5.7 map, filter, append, flatmap using foldRight. Part of the exercise is
+  // Exercise 5.7 map, filter, append, flatmap using foldRight. Part of the exercise is
   // writing your own function signatures.
+  def map[B](f: A => B): Stream[B] =
+    foldRight(Empty:Stream[B])((a, acc) => Stream.cons(f(a), acc))
 
+  def filter(p: A => Boolean): Stream[A] =  
+    foldRight(Empty:Stream[A])((a, acc) => if (p(a)) Stream.cons(a, acc) else acc)
+  
+  def append[B >: A](a: B): Stream[B] =
+    foldRight(Stream(a))((a, acc) => Stream.cons(a, acc))
+
+  def flatMap[B >: A](f: A => Stream[B]): Stream[B] =  
+    foldRight(Empty:Stream[B])((a, acc) => f(a).foldRight(acc)((a, acc) => Stream.cons(a, acc)))
+  
+  // Exercise 5.14:
   def startsWith[B](s: Stream[B]): Boolean = sys.error("todo")
 }
 case object Empty extends Stream[Nothing]
@@ -49,7 +78,21 @@ object Stream {
     else cons(as.head, apply(as.tail: _*))
 
   val ones: Stream[Int] = Stream.cons(1, ones)
-  def from(n: Int): Stream[Int] = sys.error("todo")
+  
+  // Exercise 5.8:
+  def constant[A](a: A): Stream[A] = Stream.cons(a, constant(a));
+  
+  // Exercise 5.9:
+  def from(n: Int): Stream[Int] = Stream.cons(n, from(n + 1));
 
-  def unfold[A, S](z: S)(f: S => Option[(A, S)]): Stream[A] = sys.error("todo")
+  // Exercise 5.10:
+  def fibs: Stream[Int] = {
+    def go(a: Int, b: Int): Stream[Int] = Stream.cons(a, go(b, a + b))
+    go(0, 1)
+  }
+  
+  // Exercise 5.11:
+  def unfold[A, S](z: S)(f: S => Option[(A, S)]): Stream[A] = {
+    f(z).map{case (a, s) => Stream.cons(a, unfold(s)(f))}.getOrElse(Empty)
+  }
 }
