@@ -70,5 +70,30 @@ class StreamSpec extends FlatSpec with Matchers {
   "flatMap" should "return a new stream with f applied to each element" in {
     Stream(1, 2, 3).flatMap(x => Stream(x * 2)).toList shouldBe List(2, 4, 6)
   }  
+
+  // Exercise 5.8:
+  "constant" should "return an infinite stream containing a constant value" in {
+    Stream.constant(42).take(3).toList shouldBe List(42, 42, 42)
+  }
+
+  // Exercise 5.9:
+  "from" should "return an infinite stream that increments by one" in {
+    Stream.from(1).take(3).toList shouldBe List(1, 2, 3)
+  }
+  
+  // Exercise 5.10:
+  "fibs" should "return an infinite stream of fibonacci numbers" in {
+    Stream.fibs.take(7).toList shouldBe List(0, 1, 1, 2, 3, 5, 8)
+  }
+   
+  // Exercise 5.11:
+  "unfold" should "be able to return an infinite stream " in {
+    Stream.unfold(1)(a => Some(a, a + 1)).take(3).toList shouldBe List(1, 2, 3)
+  }  
+
+  // Exercise 5.11:
+  it should "be able to return a finite stream " in {
+    Stream.unfold(1)(a => if (a < 3) Some(a, a + 1) else None).take(3).toList shouldBe List(1, 2)
+  }  
   
 }
