@@ -11,7 +11,16 @@ import Stream._;
  */
 @RunWith(classOf[JUnitRunner])
 class StreamSpec extends FlatSpec with Matchers {
-  
+
+  trait TestStreams {
+    val l1 = cons(1, Empty)
+    val l2 = cons(2, l1)
+    val l3 = cons(3, l2)
+    
+    val abc = cons("A", cons("B", cons("C", Empty)))    
+    val cba = cons("C", cons("B", cons("A", Empty)))
+  } 
+
   // Exercise 5.1:
   "toList" should "convert a Stream to a List" in {
     Stream("a", "b", "c").toList shouldBe List("a", "b", "c")
@@ -73,27 +82,87 @@ class StreamSpec extends FlatSpec with Matchers {
 
   // Exercise 5.8:
   "constant" should "return an infinite stream containing a constant value" in {
-    Stream.constant(42).take(3).toList shouldBe List(42, 42, 42)
+    constant(42).take(3).toList shouldBe List(42, 42, 42)
   }
 
   // Exercise 5.9:
   "from" should "return an infinite stream that increments by one" in {
-    Stream.from(1).take(3).toList shouldBe List(1, 2, 3)
+    from(1).take(3).toList shouldBe List(1, 2, 3)
   }
   
   // Exercise 5.10:
   "fibs" should "return an infinite stream of fibonacci numbers" in {
-    Stream.fibs.take(7).toList shouldBe List(0, 1, 1, 2, 3, 5, 8)
+    fibs.take(7).toList shouldBe List(0, 1, 1, 2, 3, 5, 8)
   }
    
   // Exercise 5.11:
   "unfold" should "be able to return an infinite stream " in {
-    Stream.unfold(1)(a => Some(a, a + 1)).take(3).toList shouldBe List(1, 2, 3)
+    unfold(1)(a => Some(a, a + 1)).take(3).toList shouldBe List(1, 2, 3)
   }  
 
   // Exercise 5.11:
   it should "be able to return a finite stream " in {
-    Stream.unfold(1)(a => if (a < 3) Some(a, a + 1) else None).take(3).toList shouldBe List(1, 2)
-  }  
-  
+    unfold(1)(a => if (a < 3) Some(a, a + 1) else None).take(3).toList shouldBe List(1, 2)
+  }
+
+  // Exercise 5.13:
+  "zipWith" should "be able to return a finite stream " in {
+    constant(1).zipWith(constant(2).take(4))(_ + _).toList shouldBe List(3, 3, 3, 3)
+  }
+
+  "zipAll" should "be able to return a finite stream " in {
+    constant(1).zipAll(constant(2).take(1)).take(2).toList shouldBe List((Some(1), Some(2)), (Some(1), None))
+  }
+
+  // Exercise 5.14:
+  "startsWith" should "return true, given a substream" in {
+    from(1).startsWith(Stream(1, 2, 3)) shouldBe true
+  } 
+
+  it should "return false otherwise" in {
+    from(1).startsWith(Stream(1, 2, 4)) shouldBe false
+  } 
+ 
+  "startsWith" should "evaulate correctly" in {
+    new TestStreams {
+      Empty.startsWith(Empty) shouldBe true
+      Empty.startsWith(l1) shouldBe false
+      l1.startsWith(Empty) shouldBe true
+
+      l3.startsWith(l3) shouldBe true
+      l3.startsWith(l2) shouldBe false
+      l3.startsWith(l1) shouldBe false
+      
+      l3.startsWith(cons(3, Empty)) shouldBe true
+      l3.startsWith(cons(3, cons(2, Empty))) shouldBe true
+
+      l3.startsWith(cons(2, Empty)) shouldBe false
+      
+      l2.startsWith(l3) shouldBe false
+      l1.startsWith(l2) shouldBe false
+      l1.startsWith(l3) shouldBe false      
+    }
+  }
+
+  "hasSubsequence" should "evaulate correctly" in {
+    new TestStreams {
+      Empty.hasSubsequence(Empty) shouldBe true
+      Empty.hasSubsequence(l1) shouldBe false
+      l1.hasSubsequence(Empty) shouldBe true
+
+      l3.hasSubsequence(l3) shouldBe true
+      l3.hasSubsequence(l2) shouldBe true
+      l3.hasSubsequence(l1) shouldBe true
+      
+      l3.hasSubsequence(cons(3, Empty)) shouldBe true
+      l3.hasSubsequence(cons(3, cons(2, Empty))) shouldBe true
+
+      l3.hasSubsequence(cons(2, Empty)) shouldBe true
+      
+      l2.hasSubsequence(l3) shouldBe false
+      l1.hasSubsequence(l2) shouldBe false
+      l1.hasSubsequence(l3) shouldBe false      
+    }
+  }
+
 }

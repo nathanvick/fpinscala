@@ -301,8 +301,6 @@ class ListSpec extends FlatSpec with Matchers {
   }  
   
   "hasPrefix" should "evaulate correctly" in {
-    val f = (a: Int, b: Int) => a + b
-    
     new TestSets {
       hasPrefix(Nil, Nil) shouldBe true
       hasPrefix(Nil, l1) shouldBe false
@@ -324,8 +322,6 @@ class ListSpec extends FlatSpec with Matchers {
   } 
 
   "hasSubsequence" should "evaulate correctly" in {
-    val f = (a: Int, b: Int) => a + b
-    
     new TestSets {
       hasSubsequence(Nil, Nil) shouldBe true
       hasSubsequence(Nil, l1) shouldBe false
