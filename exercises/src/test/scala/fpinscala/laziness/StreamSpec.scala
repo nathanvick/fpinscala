@@ -13,9 +13,10 @@ import Stream._;
 class StreamSpec extends FlatSpec with Matchers {
 
   trait TestStreams {
-    val l1 = cons(1, Empty)
-    val l2 = cons(2, l1)
-    val l3 = cons(3, l2)
+    val s1 = cons(1, Empty)
+    val s2 = cons(2, s1)
+    val s3 = cons(3, s2)
+    val s3only = cons(3, Empty)
     
     val abc = cons("A", cons("B", cons("C", Empty)))    
     val cba = cons("C", cons("B", cons("A", Empty)))
@@ -114,6 +115,28 @@ class StreamSpec extends FlatSpec with Matchers {
     constant(1).zipAll(constant(2).take(1)).take(2).toList shouldBe List((Some(1), Some(2)), (Some(1), None))
   }
 
+  // Exercise 5.13b/5.15:
+  "hasSubsequence" should "evaulate correctly" in {
+    new TestStreams {
+      Empty.hasSubsequence(Empty) shouldBe true
+      Empty.hasSubsequence(s1) shouldBe false
+      s1.hasSubsequence(Empty) shouldBe true
+
+      s3.hasSubsequence(s3) shouldBe true
+      s3.hasSubsequence(s2) shouldBe true
+      s3.hasSubsequence(s1) shouldBe true
+      
+      s3.hasSubsequence(cons(3, Empty)) shouldBe true
+      s3.hasSubsequence(cons(3, cons(2, Empty))) shouldBe true
+
+      s3.hasSubsequence(cons(2, Empty)) shouldBe true
+      
+      s2.hasSubsequence(s3) shouldBe false
+      s1.hasSubsequence(s2) shouldBe false
+      s1.hasSubsequence(s3) shouldBe false      
+    }
+  }
+  
   // Exercise 5.14:
   "startsWith" should "return true, given a substream" in {
     from(1).startsWith(Stream(1, 2, 3)) shouldBe true
@@ -126,43 +149,39 @@ class StreamSpec extends FlatSpec with Matchers {
   "startsWith" should "evaulate correctly" in {
     new TestStreams {
       Empty.startsWith(Empty) shouldBe true
-      Empty.startsWith(l1) shouldBe false
-      l1.startsWith(Empty) shouldBe true
+      Empty.startsWith(s1) shouldBe false
+      s1.startsWith(Empty) shouldBe true
 
-      l3.startsWith(l3) shouldBe true
-      l3.startsWith(l2) shouldBe false
-      l3.startsWith(l1) shouldBe false
+      s3.startsWith(s3) shouldBe true
+      s3.startsWith(s2) shouldBe false
+      s3.startsWith(s1) shouldBe false
       
-      l3.startsWith(cons(3, Empty)) shouldBe true
-      l3.startsWith(cons(3, cons(2, Empty))) shouldBe true
+      s3.startsWith(cons(3, Empty)) shouldBe true
+      s3.startsWith(cons(3, cons(2, Empty))) shouldBe true
 
-      l3.startsWith(cons(2, Empty)) shouldBe false
+      s3.startsWith(cons(2, Empty)) shouldBe false
       
-      l2.startsWith(l3) shouldBe false
-      l1.startsWith(l2) shouldBe false
-      l1.startsWith(l3) shouldBe false      
+      s2.startsWith(s3) shouldBe false
+      s1.startsWith(s2) shouldBe false
+      s1.startsWith(s3) shouldBe false
+      
+      s3only.startsWith(s3) shouldBe false      
     }
   }
 
-  "hasSubsequence" should "evaulate correctly" in {
+  // Excercise 5.15:  
+  "tails" should "convert a stream into a stream of consecutively shorter streams" in {
     new TestStreams {
-      Empty.hasSubsequence(Empty) shouldBe true
-      Empty.hasSubsequence(l1) shouldBe false
-      l1.hasSubsequence(Empty) shouldBe true
-
-      l3.hasSubsequence(l3) shouldBe true
-      l3.hasSubsequence(l2) shouldBe true
-      l3.hasSubsequence(l1) shouldBe true
-      
-      l3.hasSubsequence(cons(3, Empty)) shouldBe true
-      l3.hasSubsequence(cons(3, cons(2, Empty))) shouldBe true
-
-      l3.hasSubsequence(cons(2, Empty)) shouldBe true
-      
-      l2.hasSubsequence(l3) shouldBe false
-      l1.hasSubsequence(l2) shouldBe false
-      l1.hasSubsequence(l3) shouldBe false      
+      Empty.tails shouldBe Empty
+      s3.tails.map(_.toList).toList shouldBe List(3 :: 2 :: 1 :: Nil, 2 :: 1 :: Nil, 1 :: Nil)
     }
-  }
+  }  
 
+  // Excercise 5.16:
+  "scanRight" should "convert a stream into a stream of consecutively shorter streams" in {
+    new TestStreams {
+      Stream(1, 2, 3).scanRight(0)(_ + _).toList shouldBe List(6, 5, 3, 0)
+    }
+  }  
+  
 }
