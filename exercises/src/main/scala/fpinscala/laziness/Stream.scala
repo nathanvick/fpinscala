@@ -29,11 +29,9 @@ trait Stream[+A] {
     //}
 
     // Exercise 5.13:
-    unfold(this, n) { 
-      tuple => tuple match {
-        case (Cons(h, t), n) if n > 0 => Some(h(), (t(), n - 1))
-        case _ => None
-      }
+    unfold(this, n) {
+      case (Cons(h, t), n) if n > 0 => Some(h(), (t(), n - 1))
+      case _ => None
     }
   }
 
@@ -48,10 +46,8 @@ trait Stream[+A] {
 
     // Exercise 5.13:
     unfold(this) { 
-      s => s match {
-        case Cons(h, t) if p(h()) => Some(h(), t())
-        case _ => None
-      }
+      case Cons(h, t) if p(h()) => Some(h(), t())
+      case _ => None
     }
   }
 
@@ -71,10 +67,8 @@ trait Stream[+A] {
 
     // Exercise 5.13:
     unfold(this) { 
-      s => s match {
-        case Cons(h, t) => Some(f(h()), t())
-        case _ => None
-      }
+      case Cons(h, t) => Some(f(h()), t())
+      case _ => None
     }
   }
 
@@ -90,21 +84,17 @@ trait Stream[+A] {
   // Exercise 5.13:
   def zipWith[B, C](s2: Stream[B])(f: (A, B) => C): Stream[C] = {
     unfold(this, s2) { 
-      tuple => tuple match {
-        case (Cons(h1, t1), Cons(h2, t2)) => Some(f(h1(), h2()), (t1(), t2()))
-        case _ => None
-      }
+      case (Cons(h1, t1), Cons(h2, t2)) => Some(f(h1(), h2()), (t1(), t2()))
+      case _ => None
     }
   }
 
   def zipAll[B, C](s2: Stream[B]): Stream[(Option[A], Option[B])] = {
     unfold(this, s2) { 
-      tuple => tuple match {
-        case (Cons(h1, t1), Cons(h2, t2)) => Some((Some(h1()), Some(h2())), (t1(), t2()))
-        case (Cons(h1, t1), Empty) => Some((Some(h1()), None), (t1(), Empty))
-        case (Empty, Cons(h2, t2)) => Some((None, Some(h2())), (Empty, t2()))
-        case _ => None
-      }
+      case (Cons(h1, t1), Cons(h2, t2)) => Some((Some(h1()), Some(h2())), (t1(), t2()))
+      case (Cons(h1, t1), Empty) => Some((Some(h1()), None), (t1(), Empty))
+      case (Empty, Cons(h2, t2)) => Some((None, Some(h2())), (Empty, t2()))
+      case _ => None
     }
   }
 
@@ -117,11 +107,9 @@ trait Stream[+A] {
   // REASON: zipAll returns an infinite stream
   def startsWith2[B](s: Stream[B]): Boolean = {
     zipAll(s).map{
-      tuple => tuple match {
-        case (Some(a), Some(b)) => a == b
-        case (None, Some(b)) => false
-        case _ => true
-      }
+      case (Some(a), Some(b)) => a == b
+      case (None, Some(b)) => false
+      case _ => true
     }.forAll(x => x)
   }
   */
@@ -130,10 +118,8 @@ trait Stream[+A] {
   /*
   def existsSuffix(p: Stream[A] => Boolean) = {
     unfold(this) {
-      s => s match {
-        case s @ Cons(h, t) => Some(p(s), t())
-        case _ => None
-      }
+      case s @ Cons(h, t) => Some(p(s), t())
+      case _ => None
     }.exists(x => x)
   }
 
@@ -148,21 +134,17 @@ trait Stream[+A] {
   // Exercise 5.14:  
   def startsWith[B](s: Stream[B]): Boolean = {
     unfold(this, s) { 
-      tuple => tuple match {
-        case (Cons(h1, t1), Cons(h2, t2)) => Some(h1() == h2(), (t1(), t2()))
-        case (Empty, Cons(_, t2)) => Some(false, (Empty, t2()))
-        case _ => None
-      }
+      case (Cons(h1, t1), Cons(h2, t2)) => Some(h1() == h2(), (t1(), t2()))
+      case (Empty, Cons(_, t2)) => Some(false, (Empty, t2()))
+      case _ => None
     }.forAll(x => x)
   }  
     
   // Exercise 5.15:
   def tails[Stream[Stream[A]]] = {
     unfold(this) {
-      s => s match {
-        case s @ Cons(h, t) => Some(s, t())
-        case _ => None
-      }
+      case s @ Cons(h, t) => Some(s, t())
+      case _ => None
     }    
   }      
 
@@ -171,12 +153,10 @@ trait Stream[+A] {
   // REASON: unfold works from left to right
   def scanLeft[B](z: => B)(f: (A, => B) => B): Stream[B] = {
     unfold(this, z) {
-      tuple => tuple match {
-        case (Cons(h, t), s) =>
-          val wip = f(h(), s)
-          Some(wip, (t(), wip))
-        case _ => None
-      }
+      case (Cons(h, t), s) =>
+        val wip = f(h(), s)
+        Some(wip, (t(), wip))
+      case _ => None
     }
   }
   */
