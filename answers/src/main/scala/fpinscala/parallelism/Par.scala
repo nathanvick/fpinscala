@@ -30,6 +30,7 @@ object Par {
 
   def lazyUnit[A](a: => A): Par[A] = fork(unit(a))
 
+  // Exercise 7.4:
   def asyncF[A,B](f: A => B): A => Par[B] =
     a => lazyUnit(f(a))
 
@@ -38,6 +39,7 @@ object Par {
 
   def sortPar(parList: Par[List[Int]]) = map(parList)(_.sorted)
 
+  // Exercise 7.5:
   def sequence_simple[A](l: List[Par[A]]): Par[List[A]] =
     l.foldRight[Par[List[A]]](unit(List()))((h,t) => map2(h,t)(_ :: _))
 
@@ -66,6 +68,7 @@ object Par {
   def sequence[A](as: List[Par[A]]): Par[List[A]] =
     map(sequenceBalanced(as.toIndexedSeq))(_.toList)
 
+  // Exercise 7.6:
   def parFilter[A](l: List[A])(f: A => Boolean): Par[List[A]] = {
     val pars: List[Par[List[A]]] =
       l map (asyncF((a: A) => if (f(a)) List(a) else List()))

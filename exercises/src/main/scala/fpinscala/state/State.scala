@@ -36,10 +36,11 @@ object RNG {
 
   // Exercise 6.1:
   def nonNegativeInt(rng: RNG): (Int, RNG) = {
-    //val (i, rng1) = rng.nextInt
-    //if (i < 0) (-i, rng1) else (i, rng1)
+    val (i, rng1) = rng.nextInt
+    if (i == Int.MinValue) nonNegativeInt(rng1) else if (i < 0) (-i, rng1) else (i, rng1)
     
-    map(int)(i => if (i < 0) -i else i)(rng)
+    // Ignores Int.MinValue:
+    //map(int)(i => if (i < 0) -i else i)(rng)
   } 
 
   def nonNegativeIntRand: Rand[Int] = {
@@ -105,14 +106,14 @@ object RNG {
   
   // Exercise 6.6:
   def map2[A,B,C](ra: Rand[A], rb: Rand[B])(f: (A, B) => C): Rand[C] = {
-    rng => {
-      val (a, rng1) = ra(rng)
-      val (b, rng2) = rb(rng1)
-      (f(a, b), rng2)
-    }
+    //rng => {
+    //  val (a, rng1) = ra(rng)
+    //  val (b, rng2) = rb(rng1)
+    //  (f(a, b), rng2)
+    //}
     
     // Exercise 6.9:
-    //flatMap(ra)(a => map(rb)(b => f(a, b)))
+    flatMap(ra)(a => map(rb)(b => f(a, b)))
   }
   
   def both[A,B](ra: Rand[A], rb: Rand[B]): Rand[(A,B)] = map2(ra, rb)((_, _))
@@ -202,8 +203,8 @@ object State {
 
   def evaluateIntput(in: Input): State[Machine, (Int, Int)] = {
     State{m => (in, m) match {
-        case (Coin, m @ Machine(_,     candies, _)) if candies > 0 => extractState(Machine(false, m.candies,     m.coins + 1))
-        case (Turn, m @ Machine(false, candies, _)) if candies > 0 => extractState(Machine(true,  m.candies - 1, m.coins))
+        case (Coin, Machine(_,     candies, coins)) if candies > 0 => extractState(Machine(false, candies,     coins + 1))
+        case (Turn, Machine(false, candies, coins)) if candies > 0 => extractState(Machine(true,  candies - 1, coins))
         case (_, m) => extractState(m)
       }
     }    

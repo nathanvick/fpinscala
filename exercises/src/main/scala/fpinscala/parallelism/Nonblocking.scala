@@ -61,6 +61,9 @@ object Nonblocking {
         def apply(cb: C => Unit): Unit = {
           var ar: Option[A] = None
           var br: Option[B] = None
+
+
+
           val combiner = Actor[Either[A,B]](es) {
             case Left(a) =>
               if (br.isDefined) eval(es)(cb(f(a,br.get)))
@@ -130,10 +133,15 @@ object Nonblocking {
           }
       }
 
-    def choiceN[A](p: Par[Int])(ps: List[Par[A]]): Par[A] = ???
+    // Exercise 7.11:
+    def choiceN[A](p: Par[Int])(ps: List[Par[A]]): Par[A] =
+      es => new Future[A] {
+        def apply(cb: A => Unit): Unit =
+          p(es) { i => eval(es) { ps(i)(es)(cb) } }
+      }
 
     def choiceViaChoiceN[A](a: Par[Boolean])(ifTrue: Par[A], ifFalse: Par[A]): Par[A] =
-      ???
+      choiceN(map(a)(if (_) 1 else 0))(List(ifFalse, ifTrue))
 
     def choiceMap[K,V](p: Par[K])(ps: Map[K,Par[V]]): Par[V] =
       ???
